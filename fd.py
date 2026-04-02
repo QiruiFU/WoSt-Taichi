@@ -70,9 +70,9 @@ class FDSolver:
         self.bc_values     = ti.field(dtype=float, shape=(M, M))
 
         # Upload to GPU
-        self.interior_mask.from_numpy(int_mask.astype(np.int32))
-        self.boundary_mask.from_numpy(bnd_mask.astype(np.int32))
-        self.bc_values.from_numpy(bc_vals.astype(np.float32))
+        self.interior_mask.from_numpy(int_mask)
+        self.boundary_mask.from_numpy(bnd_mask)
+        self.bc_values.from_numpy(bc_vals)
 
         # Residual scalar
         self.residual = ti.field(dtype=float, shape=())
@@ -165,7 +165,7 @@ class FDSolver:
 # Visualisation
 # ---------------------------------------------------------------------------
 def visualise(solver: FDSolver, title: str = "FD solution",
-              save_path: str = "fd_solution.png"):
+              save_path: str = "./img/fd_solution.png"):
     u_np   = solver.get_solution_numpy()       # (N+2, N+2)
     mask   = solver.get_interior_mask_numpy()  # (N+2, N+2) bool
 

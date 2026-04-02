@@ -216,7 +216,7 @@ class WoSSolver:
 # Visualisation helper
 # ---------------------------------------------------------------------------
 def visualise(solver: WoSSolver, title: str = "WoS solution",
-              save_path: str = "wos_solution.png"):
+              save_path: str = "./img/wos_solution.png"):
     values, origins = solver.get_solution_numpy()
     lo_np, hi_np = solver.domain.bbox
     lo, hi = lo_np, hi_np
