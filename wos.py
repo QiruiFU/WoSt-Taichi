@@ -10,6 +10,7 @@ class WalkState:
     value      : float
     step       : int
     terminated : int
+    source_val : float
 
 
 @ti.data_oriented
@@ -57,6 +58,7 @@ class WoSSolver:
             self.walkers[i].value      = 0.0
             self.walkers[i].step       = 0
             self.walkers[i].terminated = 0
+            self.walkers[i].source_val = 0.0
 
     @ti.func
     def _sample_on_circle(self, center: tm.vec2, radius: float) -> tm.vec2:
@@ -76,6 +78,23 @@ class WoSSolver:
                     self.walkers[i].value      = bv
                     self.walkers[i].terminated = 1
                 else:
+                    # source
+                    N_src = 100
+                    src_val_sum = 0.0
+
+                    for k in range(N_src):
+                        r = R * ti.sqrt(ti.random())
+                        theta = 2.0 * tm.pi * ti.random()
+                        src_point = x + r * tm.vec2(tm.cos(theta), tm.sin(theta))
+                        f_val = self.domain.source(src_point)
+                        # r_safe = ti.max(r, 1e-3 * R)
+                        G = tm.log(R / r) / (2.0 * tm.pi)
+                        src_val_sum += f_val * G
+                        if ti.math.isnan(G):
+                            print("NaN detected:", R, r)
+
+                    self.walkers[i].source_val -= (src_val_sum / N_src) * (tm.pi * R * R)
+
                     new_pos = self._sample_on_circle(x, R)
                     self.walkers[i].pos   = new_pos
                     self.walkers[i].step += 1
@@ -96,7 +115,7 @@ class WoSSolver:
     @ti.kernel
     def _accumulate(self):
         for i in range(self.n_samples):
-            self.accum[i]  += self.walkers[i].value
+            self.accum[i]  += self.walkers[i].value + self.walkers[i].source_val
             self.n_done[i] += 1
 
     # Mark exterior points for non-convex domains
@@ -162,7 +181,7 @@ if __name__ == "__main__":
     ti.init(arch=ti.gpu)
 
     radius = 1 / 256
-    N_WALKS   = 20_000
+    N_WALKS   = 2000
     EPSILON   = 1e-4
     MAX_STEPS = 10000
 
