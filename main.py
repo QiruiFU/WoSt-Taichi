@@ -6,7 +6,7 @@ ti.init(arch=ti.gpu)
 
 from domain import SquareDomain, CircleDomain
 from fd    import FDSolver,  visualise as fd_vis
-from wos   import WoSSolver, visualise as wos_vis
+from WoSt   import WoSSolver, visualise as wos_vis
 
 domain = CircleDomain(cx=0.5, cy=0.5, r=0.5)
 # domain = SquareDomain(lo=(0.0, 0.0), hi=(1.0, 1.0))
